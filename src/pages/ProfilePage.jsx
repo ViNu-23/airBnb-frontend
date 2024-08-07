@@ -5,7 +5,7 @@ import axios from "axios";
 import PlacesPage from "./PlacesPage";
 import AccountNavigation from "./AccountNavigation";
 
-export default function AccountPage() {
+export default function ProfilePage() {
   const { user, ready, setUser } = useContext(UserContext);
   const [redirect, setRedirect] = useState(null);
   let { subPage } = useParams();

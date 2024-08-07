@@ -1,23 +1,21 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function AccountNavigation() {
-    let { subPage } = useParams();
-
-    if (subPage === undefined) {
-      subPage = "profile";
-    }
+const {pathname} = useLocation(); 
+let subpage = pathname.split("/")?.[2];
+if (subpage===undefined) {
+subpage = "profile";
+}
 
   function linkClasses(type = null) {
     let classes = "py-2 px-6 inline-flex gap-1 rounded-full items-center";
-    if (type === subPage || (subPage === undefined && type === "profile")) {
-        // if (type === false ){
-
+    if (type === (subpage) ) {
       classes += " bg-primary text-white";
     } else {
       classes += " bg-gray-200";
     }
     return classes;
-  }
+  }    
   return ( 
     <div>
       <nav className="w-full flex justify-center my-6 gap-2 ">
