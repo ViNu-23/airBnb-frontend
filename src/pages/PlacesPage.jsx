@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
 
 export default function PlacesPage() {
   const { action } = useParams();
@@ -14,10 +14,8 @@ export default function PlacesPage() {
   const [checkin, setCheckin] = useState("");
   const [checkout, setCheckout] = useState("");
   const [guest, setGuest] = useState(1);
+  const [redirect, setRedirect] = useState(false);
 
-  function addPlaces(e) {
-    e.preventDefault();
-  }
   async function addPhotoByLinks(e) {
     e.preventDefault();
     const { data: addedImg } = await axios.post("/uploadbylink", {
@@ -32,18 +30,55 @@ export default function PlacesPage() {
     const files = e.target.files;
     const data = new FormData();
     for (let i = 0; i < files.length; i++) {
-      data.append("photo", files[i]); 
+      data.append("photo", files[i]);
     }
-    axios.post("/uploads", data,{
-      headers: {'Content-Type':'multipart/form-data'}
-    }).then(response=>{
-      const {data:filenames}=response;
-      setPhoto((prevPhoto) =>{
-        return [...prevPhoto,...filenames]
+    axios
+      .post("/uploads", data, {
+        headers: { "Content-Type": "multipart/form-data" },
       })
-    })
+      .then((response) => {
+        const { data: filenames } = response;
+        setPhoto((prevPhoto) => {
+          return [...prevPhoto, ...filenames];
+        });
+      });
   }
-  
+
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+
+    setPerks((prevPerks) => {
+      if (checked) {
+        return [...prevPerks, name];
+      } else {
+        return prevPerks.filter((perk) => perk !== name);
+      }
+    });
+  };
+
+  async function handlePlaceSubmit(e) {
+    e.preventDefault();
+    try {
+      await axios.post("/places", {
+        title,
+        address,
+        photo,
+        description,
+        perks,
+        info,
+        checkin,
+        checkout,
+        guest,
+      });
+      setRedirect(true);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  if (redirect) {
+    return <Navigate to={"/account/places"} />;
+  }
 
   return (
     <div>
@@ -115,12 +150,12 @@ export default function PlacesPage() {
               {photo.length >= 0 && (
                 <>
                   {photo.map((imgName, index) => (
-                    <div  key={index} className="h-32 flex object-cover">
+                    <div key={index} className="h-32 flex object-cover">
                       <img
-                      className="rounded-xl w-full"
-                      src={"http://localhost:8081/uploads/" + imgName}
-                      alt="img"
-                    />
+                        className="rounded-xl w-full"
+                        src={"http://localhost:8081/uploads/" + imgName}
+                        alt="img"
+                      />
                     </div>
                   ))}
                 </>
@@ -165,7 +200,11 @@ export default function PlacesPage() {
             </p>
             <div className="grid gap-2 grid-cols-2 md:grid-cols-3 lg:grid-cols-6  ">
               <label className="border p-4 flex rounded-xl gap-2 items-center cursor-pointer">
-                <input type="checkbox" name="wifi"/>
+                <input
+                  type="checkbox"
+                  name="wifi"
+                  onChange={handleCheckboxChange}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -184,7 +223,11 @@ export default function PlacesPage() {
                 <span>Wifi</span>
               </label>
               <label className="border p-4 flex rounded-xl gap-2 items-center cursor-pointer">
-                <input type="checkbox" name="parking"/>
+                <input
+                  type="checkbox"
+                  name="parking"
+                  onChange={handleCheckboxChange}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -203,7 +246,11 @@ export default function PlacesPage() {
                 <span>Parking</span>
               </label>
               <label className="border p-4 flex rounded-xl gap-2 items-center cursor-pointer">
-                <input type="checkbox" name="tv" />
+                <input
+                  type="checkbox"
+                  name="tv"
+                  onChange={handleCheckboxChange}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -222,7 +269,11 @@ export default function PlacesPage() {
                 <span>TV</span>
               </label>
               <label className="border p-4 flex rounded-xl gap-2 items-center cursor-pointer">
-                <input type="checkbox" name="radio"/>
+                <input
+                  type="checkbox"
+                  name="radio"
+                  onChange={handleCheckboxChange}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -241,7 +292,11 @@ export default function PlacesPage() {
                 <span>Radio</span>
               </label>
               <label className="border p-4 flex rounded-xl gap-2 items-center cursor-pointer">
-                <input type="checkbox" name="pets"/>
+                <input
+                  type="checkbox"
+                  name="pets"
+                  onChange={handleCheckboxChange}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -260,7 +315,11 @@ export default function PlacesPage() {
                 <span>Pets&nbsp;Allowed</span>
               </label>
               <label className="border p-4 flex rounded-xl gap-2 items-center cursor-pointer">
-                <input type="checkbox" name="private-entrance"/>
+                <input
+                  type="checkbox"
+                  name="private-entrance"
+                  onChange={handleCheckboxChange}
+                />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -293,7 +352,7 @@ export default function PlacesPage() {
               <div>
                 <h3 className="mt-2 -mb-1">Check In</h3>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="12:00"
                   value={checkin}
                   onChange={(e) => setCheckin(e.target.value)}
@@ -302,7 +361,7 @@ export default function PlacesPage() {
               <div>
                 <h3 className="mt-2 -mb-1">Check Out</h3>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="21:00"
                   value={checkout}
                   onChange={(e) => setCheckout(e.target.value)}
@@ -319,7 +378,7 @@ export default function PlacesPage() {
               </div>
             </div>
             <div className="">
-              <button onClick={addPlaces} className="primary my-6">
+              <button onClick={handlePlaceSubmit} className="primary my-6">
                 Save
               </button>
             </div>
