@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-input[type="text"],input[type="password"],input[type="email"],input[type="number"],textarea{
-    @apply w-full border my-1 py-2 px-3 rounded-2xl outline-none
+input[type="text"],input[type="password"],input[type="email"],input[type="time"],input[type="number"], input[type="date"],textarea{
+    @apply w-full border my-1 py-2 px-3 rounded-lg outline-none
+}
+
+textarea{
+   @apply h-28
 }
 
 button{
@@ -11,5 +15,5 @@ button{
 }
 .primary{
     background-color: #F5385D;
-    @apply bg-primary p-2 w-full text-white rounded-2xl
+    @apply bg-primary p-2 text-white rounded-2xl
 }

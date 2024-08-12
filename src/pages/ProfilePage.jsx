@@ -41,14 +41,14 @@ export default function ProfilePage() {
             Logged in as {user.name} ({user.email})
             <br />
           </span>
-          <button onClick={logoutUser} className="primary max-w-xs mt-4">
+          <button onClick={logoutUser} className="primary max-w-xs mt-4 w-1/2">
             Logout
           </button>
         </div>
       )}
       {subPage === "places" && (
         <div>
-          <PlacesPage />
+          <PlacesPage subPage={subPage}/>
         </div>
       )}
     </div>

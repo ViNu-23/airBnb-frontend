@@ -68,7 +68,7 @@ export default function RegisterPage() {
             />
             <input
               type="submit"
-              className="primary py-4 my-4 cursor-pointer"
+              className="primary py-4 my-4 cursor-pointer w-full"
               value="Register"
             />
             <div className="text-center text-gray-500">

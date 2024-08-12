@@ -58,7 +58,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button className="primary py-4 my-4">Login</button>
+          <button className="primary py-4 my-4 w-full">Login</button>
           <div className="text-center text-gray-500">
             Don’t have an account yet?{" "}
             <Link className="text-black underline" to={"/register"}>
