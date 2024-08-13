@@ -505,7 +505,7 @@ export default function PlacesFormPage() {
         </div>
         <div className="flex justify-around my-10">
           <button
-            className="bg-gray-300 my-6 rounded-2xl py-2 px-4 w-1/4"
+            className="bg-gray-300 my-6 rounded-lg py-2 px-4 w-1/4"
             onClick={() => {
               navigate("/account/places");
             }}

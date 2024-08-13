@@ -4,34 +4,73 @@ import { useParams } from "react-router-dom";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function BookPlacePage() {
   const [place, setPlace] = useState([]);
   const [popPhoto, setPopPhoto] = useState(false);
   const { id } = useParams();
-  const [bookedId, setBookedId] = useState();
 
   const [checkInDate, setCheckInDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
   const [checkOutDate, setCheckOutDate] = useState();
-
   const [guests, setGuests] = useState(1);
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState(0);
+
+  const showToast = (type, message, duration = 2000) => {
+    toast[type](message, {
+      position: "bottom-center",
+      autoClose: duration,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  };
 
   async function onBookPlace() {
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
+    const todayDate = new Date();
 
-    if (checkOut <= checkIn) {
+    todayDate.setHours(0, 0, 0, 0);
+
+    const timeDifference = checkOut - checkIn;
+    const numberOfDays = timeDifference / (1000 * 60 * 60 * 24);
+
+    if (!checkOutDate) {
+      return alert("Select check-out date");
+    }
+
+    if (checkIn < todayDate) {
+      alert("Check-in date cannot be in the past.");
+      return;
+    }
+
+    if (numberOfDays <= 0) {
       alert("Check-out date must be at least one day after check-in date.");
       return;
     }
-    if(guests>(place.maxGuest)){
-      alert(`Maximum guest count must be equal or below to ${(place.maxGuest)}`);
+
+    if (guests > place.maxGuest) {
+      alert(`Maximum guest count must be equal or below to ${place.maxGuest}`);
       return;
     }
-    
+    await axios.post(`/bookings/${id}`, {checkIn, checkOut, guests, name,number}).then(response=>{
+      // console.log(response.data);
+      
+      if (response.status === 200) {
+        showToast("success", "Place Booked Successfully");
+      }else{
+        showToast("error", "Something wend wrong, Please try again later",{response});
+      }
+    })
   }
 
   const SampleNextArrow = (props) => {
@@ -175,114 +214,140 @@ export default function BookPlacePage() {
             </button>
           </div>
         </div>
-        <div className="">
-          <div className="">
-            <span className="text-3xl text-primary font-semibold">
-              {place.title},
-            </span>
-            <a
-              className="my-2 font-semibold underline flex"
-              target="_blank"
-              rel="noreferrer"
-              href={"https://maps.google.com/?q=" + place.address}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-
-              {place.address}
-            </a>
-          </div>
-          <h2 className="font-semibold text-l text-primary">Description:</h2>
-          <p className="text-justify">{place.description}</p>
-          <h2 className="font-semibold text-l text-primary mt-4">Perks:</h2>
-
-          {place?.perks?.length > 0 && (
-            <div className="flex gap-2 flex-wrap">
-              {place.perks.map((perk) => (
-                <button
-                  className="bg-gray-100 px-4 py-1 rounded-lg text-center capitalize"
-                  key={perk}
-                >
-                  {perk}
-                </button>
-              ))}
-            </div>
-          )}
-          <h2 className="font-semibold text-l text-primary mt-4">
-            Check-in & out:
-          </h2>
-
-          <div className="flex gap-3 ">
-            <button className="px-4 py-1 rounded-md bg-gray-100">
-              Check-in time: {place.checkIn}
-            </button>
-            <button className="px-4 py-1 rounded-md bg-gray-100 ">
-              Check-out time: {place.checkOut}
-            </button>
-            <button className="px-4 py-1 rounded-md bg-gray-100 ">
-              Max Guest: {place.maxGuest}
-            </button>
-          </div>
-        </div>
-      </div>
-      <div className="mt-6 flex flex-col md:flex-row">
-        <div className="md:w-1/2 text-justify">
-          <h2 className="font-semibold text-l text-primary">
-            Additional Info:
-          </h2>
-          <span className="text-justify">{place.extraInfo}</span>
-        </div>
-        <div className="md:m-6 lg:w-1/2 md:w-1/2 flex items-center justify-center">
+        <div>
           <div className="p-6 rounded-xl shadow-lg w-full">
             <p className="text-2xl font-semibold text-center text-primary">
               Price: ${place.price}/Night
             </p>
-           <div className="lg:flex gap-8 justify-between mt-4">
-           <div className="lg:w-1/2">
-              <label className="text-primary">Check-in</label>
-              <input
-                type="date"
-                value={checkInDate}
-                onChange={(e) => setCheckInDate(e.target.value)}
-              />
+            <div className="lg:flex gap-8 justify-between mt-4">
+              <div className="lg:w-1/2">
+                <label className="text-primary">Check-in</label>
+                <input
+                  type="date"
+                  value={checkInDate}
+                  onChange={(e) => setCheckInDate(e.target.value)}
+                />
+              </div>
+
+              <div className="lg:w-1/2">
+                <label className="text-primary">Check-out</label>
+                <input
+                  type="date"
+                  value={checkOutDate}
+                  onChange={(e) => setCheckOutDate(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="lg:w-1/2">
-              <label className="text-primary">Check-out</label>
-              <input
-                type="date"
-                value={checkOutDate}
-                onChange={(e) => setCheckOutDate(e.target.value)}
-              />
-            </div>
-           </div>
+            <div className="lg:flex gap-8 justify-between mt-2">
+              <div className="lg:w-1/2">
+                <label className="text-primary">Max Guest</label>
+                <input
+                  type="number"
+                  placeholder="3"
+                  value={guests}
+                  onChange={(e) => setGuests(e.target.value)}
+                  min={1}
+                />
+              </div>
 
-            <div>
-              <label className="text-primary">Max Guest</label>
-              <input
+              <div className="lg:w-1/2">
+                <label className="text-primary">Name</label>
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+            </div>
+            <label className="text-primary">Phone number</label>
+            <input
               type="number"
-              placeholder="3"
-              value={guests}
-              onChange={(e) => setGuests(e.target.value)}
-              min={1}
+              placeholder="987-654-321"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
             />
-            </div>
 
             <button onClick={onBookPlace} className="primary w-full mt-4">
               Book Now
             </button>
           </div>
         </div>
+      </div>
+      <div className="mt-6 flex flex-col md:flex-row gap-6">
+        <div className="lg:w-1/2 md:w-1/2 flex">
+          <div className="">
+            <div className="">
+              <span className="text-3xl text-primary font-semibold">
+                {place.title},
+              </span>
+              <a
+                className="my-2 font-semibold underline flex"
+                target="_blank"
+                rel="noreferrer"
+                href={"https://maps.google.com/?q=" + place.address}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="size-5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+
+                {place.address}
+              </a>
+            </div>
+            <h2 className="font-semibold text-l text-primary mt-4">Perks:</h2>
+
+            {place?.perks?.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {place.perks.map((perk) => (
+                  <button
+                    className="bg-gray-100 px-4 py-1 rounded-lg text-center capitalize"
+                    key={perk}
+                  >
+                    {perk}
+                  </button>
+                ))}
+              </div>
+            )}
+            <h2 className="font-semibold text-l text-primary mt-4">
+              Check-in & out:
+            </h2>
+
+            <div className="flex gap-3 ">
+              <button className="px-4 py-1 rounded-md bg-gray-100">
+                Check-in time: {place.checkIn}
+              </button>
+              <button className="px-4 py-1 rounded-md bg-gray-100 ">
+                Check-out time: {place.checkOut}
+              </button>
+              <button className="px-4 py-1 rounded-md bg-gray-100 ">
+                Max Guest: {place.maxGuest}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="md:w-1/2 text-justify">
+          <h2 className="font-semibold text-l text-primary">Description:</h2>
+
+          <p className="text-justify">{place.description}</p>
+
+          <h2 className="font-semibold text-l text-primary mt-3">
+            Additional Info:
+          </h2>
+
+          <span className="text-justify">{place.extraInfo}</span>
+        </div>
+      <ToastContainer />
+
       </div>
     </>
   );

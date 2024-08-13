@@ -56,9 +56,9 @@ export default function IndexPage() {
           <Link
             to={"place/" + place._id}
             key={i}
-            className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+            className="relative rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
-            <div className="rounded-2xl">
+            <div className="rounded-lg">
               <Slider {...settings}>
                 {place.photos.map((photo, index) => (
                   <img
@@ -70,7 +70,7 @@ export default function IndexPage() {
                 ))}
               </Slider>
             </div>
-            <div className="absolute bottom-0 left-0 bg-white bg-opacity-75 w-full rounded-b-2xl px-3 pb-2 md:px-4 md:pb-3">
+            <div className="absolute bottom-0 left-0 bg-white bg-opacity-75 w-full rounded-b-lg px-3 pb-2 md:px-4 md:pb-3">
               <h2 className="text-sm md:text-base font-bold text-primary truncate">
                 {place.title}
               </h2>

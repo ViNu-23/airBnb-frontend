@@ -15,5 +15,5 @@ button{
 }
 .primary{
     background-color: #F5385D;
-    @apply bg-primary p-2 text-white rounded-2xl
+    @apply bg-primary p-2 text-white rounded-lg
 }
