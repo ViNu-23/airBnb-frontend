@@ -62,7 +62,7 @@ export default function BookPlacePage() {
       alert(`Maximum guest count must be equal or below to ${place.maxGuest}`);
       return;
     }
-    await axios.post(`/bookings/${id}`, {checkIn, checkOut, guests, name,number}).then(response=>{
+    await axios.post(`/bookings/${id}`, {checkIn, checkOut, guests, name,number},).then(response=>{
       // console.log(response.data);
       
       if (response.status === 200) {
